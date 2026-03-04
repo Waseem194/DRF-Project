@@ -29,3 +29,16 @@ python manage.py runserver
 ```
 
 
+6. Run docker commands
+
+#### Build and start docker container
+
+```bash
+docker compose up -d
+```
+
+#### Kill and stop running docker container
+
+```bash
+docker compose down
+```
