@@ -2,11 +2,11 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 # from drf_app.api.views import movie_list,movie_detail
 from drf_app.api.views import (ReviewCreate,ReviewDetail,ReviewList,WatchListAV,
-                               WatchDetailAV,StreamPlatformAV,StreamPlatformDetailAV,StreamPlatformVS)
+                               WatchDetailAV,StreamPlatformVS)
 
 router = DefaultRouter()
 
-router.register('stream/',StreamPlatformVS,basename='StreamPlatform')
+router.register('stream',StreamPlatformVS,basename='StreamPlatform')
 
 urlpatterns= [
   path('list/',WatchListAV.as_view(),name='movie_list'),

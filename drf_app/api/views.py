@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status,generics,mixins,viewsets
 # from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
-from drf_app.api.permissions import AdminOrReadOnly,ReviewUserOrReadOnly
+from drf_app.api.permissions import IsAdminOrReadOnly,IsReviewUserOrReadOnly
 from rest_framework.views import APIView
 from drf_app.models import Review, StreamPlatform, WatchList
 from drf_app.api.serializers import (ReviewSerializer, StreamPlatformSerializer, 
@@ -13,7 +13,7 @@ from drf_app.api.serializers import (ReviewSerializer, StreamPlatformSerializer,
 # Concrete View Classes
 class ReviewCreate(generics.CreateAPIView):
   serializer_class = ReviewSerializer
-  
+  permission_classes = [IsAuthenticated]
   def get_queryset(self):
       return Review.objects.all()
   
@@ -37,7 +37,7 @@ class ReviewList(generics.ListAPIView):
   # queryset = Review.objects.all()
   serializer_class = ReviewSerializer
   # permission_classes = [ReviewUserOrReadOnly]
-  permission_classes = [IsAuthenticated]
+  # permission_classes = [IsAuthenticated]
   def get_queryset(self):
     pk = self.kwargs['pk']
     return Review.objects.filter(watchlist=pk)
@@ -45,7 +45,7 @@ class ReviewList(generics.ListAPIView):
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
   queryset = Review.objects.all()
   serializer_class = ReviewSerializer
-  permission_classes = [ReviewUserOrReadOnly]
+  permission_classes = [IsReviewUserOrReadOnly]
   # permission_classes = [IsAuthenticated]
   
 # Uing Mixins
@@ -67,6 +67,7 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 # ViewSets & Routers
 
 class StreamPlatformVS(viewsets.ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
     queryset = StreamPlatform.objects.all()
     serializer_class = StreamPlatformSerializer
     # permission_classes = [IsAuthenticated]
@@ -101,49 +102,52 @@ class StreamPlatformVS(viewsets.ModelViewSet):
           
       
 # Class-Based Views
-class StreamPlatformAV(APIView):
-  def get(self,request,pk=None):
-    platform = StreamPlatform.objects.all()
-    serializer = StreamPlatformSerializer(platform,many= True)
-    return Response(serializer.data)
+# class StreamPlatformAV(APIView):
+#   permission_classes = [IsAdminOrReadOnly]
+#   def get(self,request,pk=None):
+#     platform = StreamPlatform.objects.all()
+#     serializer = StreamPlatformSerializer(platform,many= True)
+#     return Response(serializer.data)
   
-  def post(self,request):
-    serializer = StreamPlatformSerializer(data=request.data)
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data)
-    else:
-      return Response(serializer.error)
+#   def post(self,request):
+#     serializer = StreamPlatformSerializer(data=request.data)
+#     if serializer.is_valid():
+#       serializer.save()
+#       return Response(serializer.data)
+#     else:
+#       return Response(serializer.error)
     
 
-class StreamPlatformDetailAV(APIView):
-  def get(self,request,pk):
-    try:
-      stream = get_object_or_404(StreamPlatform,pk=pk)
-    except WatchList.DoesNotExist:
-      return Response({'error':'Movie Not found'},
-                      status=status.HTTP_404_NOT_FOUND
-                      )
-    serializer = StreamPlatformSerializer(stream)
-    return Response(serializer.data)
+# class StreamPlatformDetailAV(APIView):
+#   permission_classes = [IsAdminOrReadOnly]
+#   def get(self,request,pk):
+#     try:
+#       stream = get_object_or_404(StreamPlatform,pk=pk)
+#     except WatchList.DoesNotExist:
+#       return Response({'error':'Movie Not found'},
+#                       status=status.HTTP_404_NOT_FOUND
+#                       )
+#     serializer = StreamPlatformSerializer(stream)
+#     return Response(serializer.data)
   
-  def put(self,request,pk):
-    update_stream = get_object_or_404(StreamPlatform,pk=pk)
-    serializer = StreamPlatformSerializer(update_stream,data=request.data)
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data)
-    else:
-      return Response(serializer.errors,
-                      status=status.HTTP_400_BAD_REQUEST)
-  def delete(self,request,pk):
-    delete_movie = get_object_or_404(StreamPlatform,pk=pk)
-    delete_movie.delete()
-    return Response({'detail':'Movie Has Been Deleted'},
-                    status=status.HTTP_204_NO_CONTENT)
+#   def put(self,request,pk):
+#     update_stream = get_object_or_404(StreamPlatform,pk=pk)
+#     serializer = StreamPlatformSerializer(update_stream,data=request.data)
+#     if serializer.is_valid():
+#       serializer.save()
+#       return Response(serializer.data)
+#     else:
+#       return Response(serializer.errors,
+#                       status=status.HTTP_400_BAD_REQUEST)
+#   def delete(self,request,pk):
+#     delete_movie = get_object_or_404(StreamPlatform,pk=pk)
+#     delete_movie.delete()
+#     return Response({'detail':'Movie Has Been Deleted'},
+#                     status=status.HTTP_204_NO_CONTENT)
     
     
 class WatchListAV(APIView):
+  permission_classes = [IsAdminOrReadOnly]
   def get(self,request):
     movies = WatchList.objects.all()
     serializer = WatchListSerializer(movies,many=True)
@@ -158,6 +162,7 @@ class WatchListAV(APIView):
       return Response(serializer.errors)
 
 class WatchDetailAV(APIView):
+  permission_classes = [IsAdminOrReadOnly]
   def get(self,request,pk):
     try:
       movie = get_object_or_404(WatchList,pk=pk)
