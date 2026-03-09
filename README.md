@@ -42,3 +42,82 @@ docker compose up -d
 ```bash
 docker compose down
 ```
+## Router or URLS
+1. Register User
+   
+   Method: POST
+   
+   Used to create a new user account.
+```bash
+    http://127.0.0.1:8000/account/register/
+```
+2. User Login
+   
+   Method: POST
+   
+   Used for user authentication and login.
+```bash
+    http://127.0.0.1:8000/account/login/
+```
+3. User Logout
+   
+   Method: POST
+   
+   Logs out the currently authenticated user.
+```bash
+    http://127.0.0.1:8000/account/logout/
+```
+4. Get Movie List
+
+   Method: GET
+  
+   Returns a list of all available movies.
+```bash
+    http://127.0.0.1:8000/movie/list/
+```
+5. Stream Platform
+
+   Methods: GET, POST
+
+   Admin users: Can perform GET and POST
+
+   Regular users: Can only perform GET
+```bash
+    http://127.0.0.1:8000/movie/stream/
+```
+6. Review Detail
+
+   Endpoint for a specific review (example: review id = 3)
+
+   Methods:
+
+         Authenticated users: GET, PUT, DELETE
+
+         Unauthenticated users: GET only
+```bash
+    http://127.0.0.1:8000/movie/review/3/
+```
+7. Movie Reviews List
+
+    Get all reviews for a specific movie (example: movie id = 6).
+
+    Method: GET
+```bash
+    http://127.0.0.1:8000/movie/6/reviews/
+```
+8. Create Review for a Movie
+
+   Create a review for a specific movie (example: movie id = 6).
+
+   Method: POST
+```bash
+    http://127.0.0.1:8000/movie/6/create-review/
+```
+9. Filter Reviews
+
+   Retrieve reviews using filters.
+
+   Method: GET
+```bash
+    http://127.0.0.1:8000/movie/reviews/
+```
