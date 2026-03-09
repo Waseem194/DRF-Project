@@ -5,15 +5,29 @@ from rest_framework import status,generics,mixins,viewsets
 # from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from drf_app.api.permissions import IsAdminOrReadOnly,IsReviewUserOrReadOnly
+from rest_framework.throttling import UserRateThrottle,AnonRateThrottle,ScopedRateThrottle
 from rest_framework.views import APIView
 from drf_app.models import Review, StreamPlatform, WatchList
 from drf_app.api.serializers import (ReviewSerializer, StreamPlatformSerializer, 
                                      WatchListSerializer)
-
+from drf_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle 
 # Concrete View Classes
+
+
+class UserReview(generics.ListAPIView):
+  serializer_class = ReviewSerializer
+  # def get_queryset(self):
+  #   username = self.kwargs['username']
+  #   return Review.objects.filter(review_user__username=username)
+  def get_queryset(self):
+    username = self.request.query_params.get('username')
+    return Review.objects.filter(review_user__username=username)
+  
+  
 class ReviewCreate(generics.CreateAPIView):
   serializer_class = ReviewSerializer
   permission_classes = [IsAuthenticated]
+  throttle_classes = [ReviewCreateThrottle]
   def get_queryset(self):
       return Review.objects.all()
   
@@ -36,6 +50,7 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
   # queryset = Review.objects.all()
   serializer_class = ReviewSerializer
+  throttle_classes = [ReviewCreateThrottle]
   # permission_classes = [ReviewUserOrReadOnly]
   # permission_classes = [IsAuthenticated]
   def get_queryset(self):
@@ -46,6 +61,8 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
   queryset = Review.objects.all()
   serializer_class = ReviewSerializer
   permission_classes = [IsReviewUserOrReadOnly]
+  throttle_classes = [ScopedRateThrottle]
+  throttle_scope = 'review-detail'
   # permission_classes = [IsAuthenticated]
   
 # Uing Mixins
